@@ -10,6 +10,7 @@ typedef struct Tarea {
 } Tarea;
 
 void cargarTarea(Tarea **listado, int id);
+Tarea BuscarTarea(Tarea *listado, int id, int cantTareas);
 
 int main() {
     srand(time(NULL));
@@ -96,4 +97,20 @@ void cargarTarea(Tarea **listado, int id) {
     (*listado)->Duracion = rand() % 91 + 10;
     (*listado)->TareaID = id;
     free(buffer);
+}
+
+Tarea BuscarTarea(Tarea *listado, int id, int cantTareas) {
+    Tarea tareaBuscada;
+    // Inicializacion de tareaBuscada para, en caso de no encontrar la buscada, devuelva una indefinida
+    tareaBuscada.TareaID = 0;
+    tareaBuscada.Duracion = 0;
+    strcpy(tareaBuscada.Descripcion, "Undefined");
+
+    for (int i = 0; i < cantTareas; i++) {
+        if (listado->TareaID == id) {
+            tareaBuscada = *listado;
+            break;
+        }
+    }
+    return tareaBuscada;
 }
