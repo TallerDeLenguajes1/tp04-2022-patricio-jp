@@ -10,7 +10,7 @@ typedef struct Tarea {
 } Tarea;
 
 void cargarTarea(Tarea **listado, int id);
-Tarea BuscarTarea(Tarea *listado, int id, int cantTareas);
+Tarea * BuscarTarea(Tarea **listado, int id, int cantTareas);
 
 int main() {
     srand(time(NULL));
@@ -44,7 +44,7 @@ int main() {
         printf("--- Tarea [%d] ---\n", i + 1);
         printf("ID de tarea: %d\n", TareasPendientes[i]->TareaID);
         printf("Descripcion: %s\n", TareasPendientes[i]->Descripcion);
-        printf("Duracion: %d\n\n", TareasPendientes[i]->Duracion);
+        printf("Duracion: %d\n", TareasPendientes[i]->Duracion);
 
         printf("\nLa tarea fue completada?\n1) SI\n2) NO\n");
         scanf("%d", &respuesta);
@@ -79,6 +79,33 @@ int main() {
         }
     }
 
+    // Prueba funcion BuscarTarea
+    Tarea * tareaAux;
+    printf("\nBuscarTarea con ID 3 en TareasPendientes: \n");
+    tareaAux = BuscarTarea(TareasPendientes, 3, cantTareas);
+    printf("ID de tarea: %d\n", tareaAux->TareaID);
+    printf("Descripcion: %s\n", tareaAux->Descripcion);
+    printf("Duracion: %d\n", tareaAux->Duracion);
+
+    printf("\nBuscarTarea con ID 3 en TareasRealizadas: \n");
+    tareaAux = BuscarTarea(TareasRealizadas, 3, cantTareas);
+    printf("ID de tarea: %d\n", tareaAux->TareaID);
+    printf("Descripcion: %s\n", tareaAux->Descripcion);
+    printf("Duracion: %d\n", tareaAux->Duracion);
+
+    // Probando funcion BuscarTarea con un ID que no existe en ninguna lista
+    printf("\nBuscarTarea con ID %d en TareasPendientes: \n", cantTareas + 3);
+    tareaAux = BuscarTarea(TareasPendientes, cantTareas + 3, cantTareas);
+    printf("ID de tarea: %d\n", tareaAux->TareaID);
+    printf("Descripcion: %s\n", tareaAux->Descripcion);
+    printf("Duracion: %d\n", tareaAux->Duracion);
+
+    printf("\nBuscarTarea con ID %d en TareasRealizadas: \n", cantTareas + 3);
+    tareaAux = BuscarTarea(TareasRealizadas, cantTareas + 3, cantTareas);
+    printf("ID de tarea: %d\n", tareaAux->TareaID);
+    printf("Descripcion: %s\n", tareaAux->Descripcion);
+    printf("Duracion: %d\n", tareaAux->Duracion);
+    
     // liberacion de memoria
     for (int i = 0; i < cantTareas; i++) {
         free(TareasPendientes[i]);
@@ -99,16 +126,20 @@ void cargarTarea(Tarea **listado, int id) {
     free(buffer);
 }
 
-Tarea BuscarTarea(Tarea *listado, int id, int cantTareas) {
-    Tarea tareaBuscada;
+Tarea * BuscarTarea(Tarea **listado, int id, int cantTareas) {
+    Tarea *tareaBuscada;
+    tareaBuscada = (Tarea *) malloc(sizeof(Tarea));
     // Inicializacion de tareaBuscada para, en caso de no encontrar la buscada, devuelva una indefinida
-    tareaBuscada.TareaID = 0;
-    tareaBuscada.Duracion = 0;
-    strcpy(tareaBuscada.Descripcion, "Undefined");
+    tareaBuscada->TareaID = 0;
+    tareaBuscada->Duracion = 0;
+    tareaBuscada->Descripcion = (char *) malloc(sizeof(char) * 100);
+    strcpy(tareaBuscada->Descripcion, "Undefined");
 
     for (int i = 0; i < cantTareas; i++) {
-        if (listado->TareaID == id) {
-            tareaBuscada = *listado;
+        if (listado[i] && listado[i]->TareaID == id) {
+            tareaBuscada->TareaID = listado[i]->TareaID;
+            tareaBuscada->Duracion = listado[i]->Duracion;
+            strcpy(tareaBuscada->Descripcion, listado[i]->Descripcion);
             break;
         }
     }
