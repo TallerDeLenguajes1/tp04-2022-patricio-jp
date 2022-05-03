@@ -19,8 +19,8 @@ void cargarTareas(Nodo **lista, int cantTareas);
 void mostrarTareas(Nodo *lista, int cantTareas);
 void mostrarTareasYConsultar(Nodo **tareasPendientes, int cantTareas, Nodo **tareasRealizadas);
 void moverTareas(Nodo **lista1, Nodo **nodo1, Nodo **lista2);
-Tarea * BuscarTareaPorPalabra(Tarea **listado, char *palabra, int cantTareas);
-Tarea * BuscarTareaPorID(Tarea **listado, int id, int cantTareas);
+Nodo * BuscarTareaPorPalabra(Nodo *listado, char *palabra, int cantTareas);
+Nodo * BuscarTareaPorID(Nodo *listado, int id, int cantTareas);
 
 int main() {
     srand(time(NULL));
@@ -55,7 +55,7 @@ int main() {
     mostrarTareas(TareasPendientes, cantTareas);
 
     // Prueba funcion BuscarTarea
-    /*Tarea * tareaAux;
+    Nodo * tareaAux;
     printf("\nBuscarTarea con Palabra en TareasPendientes: ");
     fflush(stdin);
     gets(buffer);
@@ -63,31 +63,31 @@ int main() {
     strcpy(palabra, buffer);
 
     tareaAux = BuscarTareaPorPalabra(TareasPendientes, palabra, cantTareas);
-    mostrarTareas(tareaAux);
+    mostrarTareas(tareaAux, 1);
 
     printf("\nBuscarTarea con Palabra en TareasRealizadas: \n");
     tareaAux = BuscarTareaPorPalabra(TareasRealizadas, palabra, cantTareas);
-    mostrarTareas(tareaAux);
+    mostrarTareas(tareaAux, 1);
 
     printf("\nBuscarTarea con ID 3 en TareasPendientes: \n");
     tareaAux = BuscarTareaPorID(TareasPendientes, 3, cantTareas);
-    mostrarTareas(tareaAux);
+    mostrarTareas(tareaAux, 1);
 
     printf("\nBuscarTarea con ID 3 en TareasRealizadas: \n");
     tareaAux = BuscarTareaPorID(TareasRealizadas, 3, cantTareas);
-    mostrarTareas(tareaAux);
+    mostrarTareas(tareaAux, 1);
 
     // Probando funcion BuscarTarea con un ID que no existe en ninguna lista
     printf("\nBuscarTarea con ID %d en TareasPendientes: \n", cantTareas + 3);
     tareaAux = BuscarTareaPorID(TareasPendientes, cantTareas + 3, cantTareas);
-    mostrarTareas(tareaAux);
+    mostrarTareas(tareaAux, 1);
 
     printf("\nBuscarTarea con ID %d en TareasRealizadas: \n", cantTareas + 3);
     tareaAux = BuscarTareaPorID(TareasRealizadas, cantTareas + 3, cantTareas);
-    mostrarTareas(tareaAux);
+    mostrarTareas(tareaAux, 1);
     
     // liberacion de memoria
-    for (int i = 0; i < cantTareas; i++) {
+    /*for (int i = 0; i < cantTareas; i++) {
         free(TareasPendientes[i]);
         free(TareasRealizadas[i]);
     }*/
@@ -131,7 +131,9 @@ void cargarTareas(Nodo **lista, int cantTareas) {
 void mostrarTareas(Nodo *lista, int cantTareas) {
     int i = 1; // Indice auxiliar para enumerar las tareas
     while (lista != NULL && i <= cantTareas) {
-        printf("--- Tarea [%d] ---\n", i);
+        if (cantTareas > 1) {
+            printf("--- Tarea [%d] ---\n", i);
+        }
         printf("* ID de tarea: %d\n", lista->Tarea.TareaID);
         printf("* Descripcion: %s\n", lista->Tarea.Descripcion);
         printf("* Duracion: %d\n", lista->Tarea.Duracion);
@@ -189,43 +191,47 @@ void moverTareas(Nodo **lista1, Nodo **nodo1, Nodo **lista2) {
     *lista1 = lista1Aux; // Apuntar lista1 nuevamente al comienzo
 }
 
-Tarea * BuscarTareaPorPalabra(Tarea **listado, char *palabra, int cantTareas) {
-    Tarea *tareaBuscada;
-    tareaBuscada = (Tarea *) malloc(sizeof(Tarea));
+Nodo * BuscarTareaPorPalabra(Nodo *listado, char *palabra, int cantTareas) {
+    Nodo *tareaBuscada;
+    tareaBuscada = (Nodo *) malloc(sizeof(Nodo));
     // Inicializacion de tareaBuscada para, en caso de no encontrar la buscada, devuelva una indefinida
-    tareaBuscada->TareaID = 0;
-    tareaBuscada->Duracion = 0;
-    tareaBuscada->Descripcion = (char *) malloc(sizeof(char) * 100);
-    strcpy(tareaBuscada->Descripcion, "Undefined");
+    tareaBuscada->Tarea.TareaID = 0;
+    tareaBuscada->Tarea.Duracion = 0;
+    tareaBuscada->Tarea.Descripcion = (char *) malloc(sizeof(char) * 100);
+    strcpy(tareaBuscada->Tarea.Descripcion, "Undefined");
 
     for (int i = 0; i < cantTareas; i++) {
-        if (listado[i]) {
-            if (strcmp(palabra, listado[i]->Descripcion) == 0) {
-                tareaBuscada->TareaID = listado[i]->TareaID;
-                tareaBuscada->Duracion = listado[i]->Duracion;
-                strcpy(tareaBuscada->Descripcion, listado[i]->Descripcion);
+        if (listado) {
+            if (strcmp(palabra, listado->Tarea.Descripcion) == 0) {
+                tareaBuscada->Tarea.TareaID = listado->Tarea.TareaID;
+                tareaBuscada->Tarea.Duracion = listado->Tarea.Duracion;
+                strcpy(tareaBuscada->Tarea.Descripcion, listado->Tarea.Descripcion);
                 break;
             }
+            listado = listado->Siguiente;
         }
     }
     return tareaBuscada;
 }
 
-Tarea * BuscarTareaPorID(Tarea **listado, int id, int cantTareas) {
-    Tarea *tareaBuscada;
-    tareaBuscada = (Tarea *) malloc(sizeof(Tarea));
+Nodo * BuscarTareaPorID(Nodo *listado, int id, int cantTareas) {
+    Nodo *tareaBuscada;
+    tareaBuscada = (Nodo *) malloc(sizeof(Nodo));
     // Inicializacion de tareaBuscada para, en caso de no encontrar la buscada, devuelva una indefinida
-    tareaBuscada->TareaID = 0;
-    tareaBuscada->Duracion = 0;
-    tareaBuscada->Descripcion = (char *) malloc(sizeof(char) * 100);
-    strcpy(tareaBuscada->Descripcion, "Undefined");
+    tareaBuscada->Tarea.TareaID = 0;
+    tareaBuscada->Tarea.Duracion = 0;
+    tareaBuscada->Tarea.Descripcion = (char *) malloc(sizeof(char) * 100);
+    strcpy(tareaBuscada->Tarea.Descripcion, "Undefined");
 
     for (int i = 0; i < cantTareas; i++) {
-        if (listado[i] && listado[i]->TareaID == id) {
-            tareaBuscada->TareaID = listado[i]->TareaID;
-            tareaBuscada->Duracion = listado[i]->Duracion;
-            strcpy(tareaBuscada->Descripcion, listado[i]->Descripcion);
-            break;
+        if (listado) {
+            if (listado->Tarea.TareaID == id) {
+                tareaBuscada->Tarea.TareaID = listado->Tarea.TareaID;
+                tareaBuscada->Tarea.Duracion = listado->Tarea.Duracion;
+                strcpy(tareaBuscada->Tarea.Descripcion, listado->Tarea.Descripcion);
+                break;
+            }
+            listado = listado->Siguiente;
         }
     }
     return tareaBuscada;
